@@ -1,67 +1,82 @@
 <!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>보틀임프 Bottle Imp</title>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Dodum&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
-:root{--ink:#0d2624;--felt:#14403b;--ivory:#efe4c8;--gold:#c9a24a;--Y:#d9a824;--B:#2c67ad;--R:#b3362b;--txt:#f1e7cf;--fb:'Gowun Dodum','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--ft:'Black Han Sans','Apple SD Gothic Neo',sans-serif;--fn:'Playfair Display',Georgia,serif}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;color:var(--txt);font-family:var(--fb);line-height:1.5;background:radial-gradient(ellipse at 50% 35%,#1b524b,var(--ink) 75%)}
-button{font:inherit;cursor:pointer;color:var(--ink);background:var(--gold);border:0;border-radius:6px;padding:.55em 1.1em;font-weight:700}
+:root{--ink:#0d2624;--felt:#14403b;--ivory:#efe4c8;--gold:#f0a626;--Y:#d8a520;--B:#2b4d9b;--R:#b8322a;--txt:#f1e7cf;--fb:'Gowun Dodum','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--ft:'Do Hyeon','Apple SD Gothic Neo',sans-serif;--fn:'Playfair Display',Georgia,serif}
+html{font-size:18px}*{box-sizing:border-box}body{overflow-x:hidden}
+body{margin:0;min-height:100vh;color:var(--txt);font-family:var(--fb);line-height:1.5;background:radial-gradient(ellipse at 50% 30%,#22232a,#0b0b0e 75%)}
+button{font:inherit;cursor:pointer;color:var(--ink);background:var(--gold);border:0;border-radius:6px;padding:.55em 1.1em;font-weight:400}
+b{font-weight:400;color:#ffe3a3}
 button.g{background:transparent;color:var(--txt);border:1px solid var(--gold)}button:disabled{opacity:.4;cursor:default}
 input,select{font:inherit;padding:.5em;border-radius:6px;border:1px solid var(--gold);background:#0b1d1c;color:var(--txt)}
 #menu,.ov{max-width:440px;margin:6vh auto;padding:24px;border:2px solid var(--gold);border-radius:10px;background:#0b1d1cee;text-align:center}
-h1{font-size:2.2rem;margin:.1em 0;font-weight:400;font-family:var(--ft);letter-spacing:.06em;color:var(--gold)}
+h1{font-size:2.4rem;margin:.1em 0;font-weight:400;font-family:var(--ft);letter-spacing:.05em;color:var(--gold);text-shadow:0 2px 0 #0008}
 .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0;align-items:center}
-.warn{font-size:.75rem;opacity:.7}
-/* cards */
-.c{width:58px;height:86px;border-radius:7px;background:var(--ivory);border:3px solid var(--k);position:relative;color:#2a2118;flex:none;
- background-image:radial-gradient(circle at 50% 50%,transparent 26px,color-mix(in srgb,var(--k) 18%,transparent) 27px,transparent 40px)}
-.c b{position:absolute;inset:0;display:grid;place-items:center;font-size:1.5rem;font-weight:900;font-family:var(--fn);color:var(--k)}
-.c i{position:absolute;left:0;right:0;bottom:3px;text-align:center;font-style:normal;font-size:.55rem;color:#b8860b;letter-spacing:1px;text-shadow:0 0 1px #8a6508}
-.c u{position:absolute;top:2px;left:4px;font-size:.6rem;text-decoration:none}
-.Y{--k:var(--Y)}.B{--k:var(--B)}.R{--k:var(--R)}.K{--k:#111;background:#1a1a1a;color:var(--gold)}.K b{color:var(--gold)}
-.back{width:58px;height:86px;border-radius:7px;border:2px solid var(--gold);background:repeating-conic-gradient(#12302d 0 25%,#1d4a44 0 50%) 0 0/14px 14px}
+.warn{font-size:0.85rem;opacity:.7}
+/* cards — 실물 카드처럼: 흰 바탕, 네 모서리 숫자, 은색 코인, 색 상징, 가운데 그림 칸 */
+.c{width:68px;height:100px;zoom:1.12;border-radius:8px;background:#fcfcf8;border:1px solid #c9c9c0;position:relative;color:#2a2118;flex:none;box-shadow:0 1px 3px #0009}
+.c b{position:absolute;font-size:.85rem;line-height:1;font-weight:700;font-family:var(--fn);color:var(--k)}
+.c b.nl{left:5px;top:4px}.c b.nr{right:5px;top:4px}.c b.bl{left:5px;bottom:4px;transform:rotate(180deg)}.c b.br{right:5px;bottom:4px;transform:rotate(180deg)}
+.cn{position:absolute;left:50%;top:6px;width:18px;height:15px;transform:translateX(-50%)}.cn.bt{top:auto;bottom:6px;transform:translateX(-50%) rotate(180deg)}
+.cn em{position:absolute;width:5px;height:5px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 35%,#d9d9de,#6b6b74);box-shadow:0 0 0 .8px #4a4a52}
+.sy{position:absolute;left:50%;transform:translateX(-50%);color:var(--k)}.sy svg{width:8px;height:8px;display:block}.sy.t{top:22px}.sy.bt{bottom:22px;transform:translateX(-50%) rotate(180deg)}
+.art{position:absolute;left:6px;right:6px;top:32px;bottom:32px;border-radius:5px;background:var(--art);box-shadow:0 0 0 2px #fff,0 0 0 3px var(--k)}
+.Y{--k:var(--Y);--art:linear-gradient(#bfe3f0,#f7e7a0 62%,#e6bf58)}
+.B{--k:var(--B);--art:radial-gradient(circle at 72% 28%,#fff 0 7%,transparent 8%),linear-gradient(#1f3480,#3d78c9)}
+.R{--k:var(--R);--art:linear-gradient(#f4b26a,#cc5a3c 60%,#7c2a2c)}
+.K{--k:#fff;background:linear-gradient(#f9b23c,#e8561a);border-color:#fff}
+.K b{color:#fff;text-shadow:-1px 0 #000,1px 0 #000,0 -1px #000,0 1px #000}
+.K .art{--art:radial-gradient(circle at 50% 70%,#ffe27a,#f6a12a 55%,#e5541a);box-shadow:none;left:4px;right:4px;top:22px;bottom:22px}.K .art svg{width:100%;height:100%;display:block}
+.back{width:68px;height:100px;zoom:1.12;border-radius:8px;border:2px solid #f2f0e6;background:#131b3d url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 40'><path d='M9 2h6v8l4 6v20a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V16l4-6z' fill='%23e9b834'/></svg>") center/34% no-repeat}
+.ovc{position:absolute;left:10px;bottom:10px;background:linear-gradient(#2fa8d8,#8fd6ee);border:2px solid #fff;border-radius:8px;padding:3px;z-index:1}.ovc div{display:flex;gap:1px;margin-bottom:1px}.ovc span{background:#f1f9fc;width:17px;font-size:0.60rem;line-height:1.5;text-align:center;color:var(--k);font-family:var(--fn)}.ovc .cur{background:#f08a1c;color:#fff}
+.hb svg{width:44px;height:auto}.ovc{cursor:pointer}.ov{background:#111318f5}.ov.wide{max-width:560px}.ov table td:first-child{white-space:nowrap}.ovc.big{position:static;zoom:1.8;display:inline-block;cursor:default;margin:10px 0}.ovc.big span{display:flex;flex-direction:column;align-items:center;padding:1px 0}.ovc.big i{font-style:normal;line-height:1}.ovc.big i svg{width:5px;height:5px;display:block}
+body.skybg{background:linear-gradient(180deg,#1b8fc4,#8fd3ec 60%,#e7f6fb)}body.skybg #credit{color:#0b2b40;opacity:.7}
+#menu.sky{background:linear-gradient(180deg,#38a8d8,#a5e0f3);border:3px solid #fff;color:#0b2b40;box-shadow:0 6px 24px #0b2b4066}
+.sky h1{color:#f5a11f;-webkit-text-stroke:6px #0b2b40;paint-order:stroke fill;text-shadow:none;letter-spacing:.04em}
+.sky button{background:#f5a11f;color:#0b2b40}.sky button.g{background:#ffffffb0;border:1px solid #0b2b40;color:#0b2b40}.sky button:disabled{opacity:.5}
+.sky input,.sky select{background:#fff;color:#0b2b40;border:1px solid #0b2b40}
+.sky .warn{color:#0b2b40;opacity:.8}.sky b{color:#a03d00}.sky .warnbox{border-color:#0b2b40;background:#ffffff66}.sky .plist li{border-bottom-color:#0b2b4033}.sky .tag{background:#0b2b40;color:#fff}.sky .code{color:#f5a11f;-webkit-text-stroke:2px #0b2b40;paint-order:stroke fill}
 /* table */
-#top{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;font-size:.85rem;flex-wrap:wrap;background:#0006}
-#top span.me{color:var(--gold);font-weight:700}
-#tbl{position:relative;height:min(58vh,470px);max-width:820px;margin:8px auto;border:3px solid #7a5b21;border-radius:50% / 40%;background:radial-gradient(var(--felt),#0e2c29);box-shadow:inset 0 0 40px #000a}
-.seat{position:absolute;text-align:center;font-size:.8rem;transform:translate(-50%,-50%);white-space:nowrap}
+#top{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;font-size:0.95rem;flex-wrap:wrap;background:#0006}
+#top span.me{color:var(--gold);border-bottom:1px solid var(--gold)}
+#tbl{position:relative;height:min(60vh,500px);max-width:820px;margin:8px auto;border:2px solid #2c2c33;border-radius:22px;background:radial-gradient(#1c1c22,#0a0a0c);box-shadow:inset 0 0 40px #000c}
+.seat{position:absolute;text-align:center;font-size:0.90rem;transform:translate(-50%,-50%);white-space:nowrap}
 .seat.l{left:9%;top:50%}.seat.r{left:91%;top:50%}.seat.t{left:50%;top:9%}.seat.b{left:50%;top:93%}
-.seat .n{padding:2px 10px;border-radius:12px;background:#000a;border:1px solid var(--gold)}.seat.turn .n{background:var(--gold);color:var(--ink);font-weight:700}
+.seat .n{padding:2px 10px;border-radius:12px;background:#000a;border:1px solid var(--gold)}.seat.turn .n{background:var(--gold);color:var(--ink)}
 #ctr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center}
-.pile{position:relative;width:78px;height:96px}.pile>*{position:absolute;left:6px;top:4px}
+.pile{position:relative;width:100px;height:124px}.pile>*{position:absolute;left:12px;top:4px}
 .pile .back:nth-child(1){transform:rotate(-7deg)}.pile .back:nth-child(2){transform:rotate(5deg)}
-.pile svg{left:26px;top:-16px;z-index:5;filter:drop-shadow(0 2px 3px #000)}
-#ctr small{margin-top:4px;font-size:.7rem;background:#000a;padding:1px 8px;border-radius:10px}
+.pile svg{left:33px;top:-6px;width:34px;height:auto;z-index:5;filter:drop-shadow(0 2px 3px #000)}
+#ctr small{margin-top:4px;font-size:0.80rem;background:#000a;padding:1px 8px;border-radius:10px}
 .tc{position:absolute;left:50%;top:50%;z-index:3}
 .tc.b{transform:translate(-50%,-5%)}.tc.l{transform:translate(-190%,-50%)}.tc.t{transform:translate(-50%,-105%)}.tc.r{transform:translate(90%,-50%)}
 .tc.win .c{box-shadow:0 0 0 3px var(--gold),0 0 18px var(--gold)}
 #msg{text-align:center;min-height:2.6em;padding:4px 10px;font-size:.95rem}
 #hand{display:flex;justify-content:center;flex-wrap:wrap;gap:0;padding:6px 10px 24px}
-#hand .c{margin:0 -6px;transition:transform .12s;cursor:pointer}#hand .c:hover{transform:translateY(-10px)}
+#hand .c{margin:0 -3px;transition:transform .12s;cursor:pointer}#hand .c:hover{transform:translateY(-10px)}
 #hand .c.dim{filter:brightness(.55);cursor:not-allowed}#hand .c.sel{transform:translateY(-16px);box-shadow:0 0 0 3px var(--gold)}
-#hand .c em{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-size:.6rem;padding:0 6px;border-radius:8px;font-style:normal;white-space:nowrap}
 .ov{position:fixed;inset:0;height:max-content;margin:8vh auto;z-index:20;max-height:84vh;overflow:auto}
 .ov table{width:100%;border-collapse:collapse;margin:8px 0}.ov td,.ov th{padding:4px;border-bottom:1px solid #ffffff22}
-.ov p{text-align:left;font-size:.85rem;line-height:1.55;margin:.4em 0}
+.ov p{text-align:left;font-size:0.95rem;line-height:1.55;margin:.4em 0}
 .imp{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;transform:scale(.6);margin:-14px 0}
-#credit{text-align:center;font-size:.75rem;letter-spacing:.12em;opacity:.55;padding:10px 0 18px}#toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);background:#000d;color:#fff;padding:8px 16px;border-radius:20px;font-size:.85rem;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw;text-align:center}#toast.on{opacity:1}
-#connBar{display:none;position:fixed;top:0;left:0;right:0;background:var(--R);color:#fff;text-align:center;padding:4px;font-size:.8rem;z-index:70}#connBar.on{display:block}
+#credit{text-align:center;font-size:0.85rem;letter-spacing:.12em;opacity:.55;padding:10px 0 18px}#toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);background:#000d;color:#fff;padding:8px 16px;border-radius:20px;font-size:0.95rem;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw;text-align:center}#toast.on{opacity:1}
+#connBar{display:none;position:fixed;top:0;left:0;right:0;background:var(--R);color:#fff;text-align:center;padding:4px;font-size:0.90rem;z-index:70}#connBar.on{display:block}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;background:#777;vertical-align:middle}.dot.good{background:#4cd964}.dot.mid{background:#ffd60a}.dot.bad{background:#ff9f0a}.dot.stale{background:#ff453a}
 .code{font-size:2.2rem;letter-spacing:.25em;color:var(--gold);font-family:var(--fn);font-weight:900}
 .plist{list-style:none;padding:0;margin:10px 0;text-align:left}.plist li{padding:6px 10px;border-bottom:1px solid #ffffff22}
-.tag{font-size:.65rem;background:var(--gold);color:var(--ink);padding:1px 7px;border-radius:9px;margin-left:4px}
-.warnbox{border:1px solid var(--gold);border-radius:8px;padding:8px;font-size:.85rem;margin:8px 0}
+.tag{font-size:0.75rem;background:var(--gold);color:var(--ink);padding:1px 7px;border-radius:9px;margin-left:4px}
+.warnbox{border:1px solid var(--gold);border-radius:8px;padding:8px;font-size:0.95rem;margin:8px 0}
 #chatBtn{display:none;position:fixed;right:14px;bottom:14px;width:46px;height:46px;border-radius:50%;padding:0;font-size:1.3rem;z-index:40}#chatBtn.on{display:block}
-#chatBadge{display:none;position:absolute;top:-4px;right:-4px;background:var(--R);color:#fff;font-size:.65rem;border-radius:10px;padding:1px 5px}#chatBadge.on{display:block}
+#chatBadge{display:none;position:absolute;top:-4px;right:-4px;background:var(--R);color:#fff;font-size:0.75rem;border-radius:10px;padding:1px 5px}#chatBadge.on{display:block}
 #chatBox{display:none;position:fixed;right:14px;bottom:70px;width:min(320px,92vw);height:300px;background:#0b1d1cf2;border:1px solid var(--gold);border-radius:10px;z-index:45;flex-direction:column}#chatBox.on{display:flex}
-#chatLog{flex:1;overflow:auto;padding:8px;font-size:.8rem}.chat-m{margin:4px 0;word-break:break-all}.chat-m .who{color:var(--gold);margin-right:6px}.chat-m.me .who{color:#7fd6c8}.chat-none{opacity:.6;text-align:center;margin-top:20px}
-#chatBox .in{display:flex;gap:4px;padding:6px}#chatBox input{flex:1;min-width:0}#chatTip{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);background:#000c;font-size:.7rem;padding:2px 10px;border-radius:10px;opacity:0;transition:.2s;white-space:nowrap}#chatTip.on{opacity:1}
-.cw{display:flex;align-items:center;gap:12px}.tg{font-size:.75rem;padding:.4em .8em}.tg.hot{outline:2px solid #fff;animation:pl 1s infinite}@keyframes pl{50%{box-shadow:0 0 14px var(--gold)}}.asg{zoom:.6;display:flex;justify-content:center;margin-top:4px}
+#chatLog{flex:1;overflow:auto;padding:8px;font-size:0.90rem}.chat-m{margin:4px 0;word-break:break-all}.chat-m .who{color:var(--gold);margin-right:6px}.chat-m.me .who{color:#7fd6c8}.chat-none{opacity:.6;text-align:center;margin-top:20px}
+#chatBox .in{display:flex;gap:4px;padding:6px}#chatBox input{flex:1;min-width:0}#chatTip{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);background:#000c;font-size:0.80rem;padding:2px 10px;border-radius:10px;opacity:0;transition:.2s;white-space:nowrap}#chatTip.on{opacity:1}
+.cw{display:flex;align-items:center;gap:12px}.tg{font-size:0.85rem;padding:.4em .8em}.tg.hot{outline:2px solid #fff;animation:pl 1s infinite}@keyframes pl{50%{box-shadow:0 0 14px var(--gold)}}.asg{zoom:.6;display:flex;justify-content:center;margin-top:4px}
 #menu.wide{max-width:640px}.story p{text-align:left;line-height:1.85;font-size:1rem;margin:.9em 0}.story .rule{margin:.3em 0 .3em 1em;padding-left:.6em;border-left:3px solid var(--gold)}.end{color:var(--gold);letter-spacing:.3em;margin:1.5em 0}
-@media(max-width:600px){.c{width:46px;height:70px}.c b{font-size:1.2rem}.back{width:46px;height:70px}#hand .c{margin:0 -8px}.tc.l{transform:translate(-165%,-50%)}.tc.r{transform:translate(65%,-50%)}}
+@media(max-width:600px){html{font-size:16px}.c,.back{width:50px;height:76px}.c b{font-size:.7rem}.art{top:25px;bottom:25px;left:5px;right:5px}.cn{top:4px;transform:translateX(-50%) scale(.8)}.cn.bt{bottom:4px;transform:translateX(-50%) rotate(180deg) scale(.8)}.sy.t{top:17px}.sy.bt{bottom:17px}#hand .c{margin:0 -8px}.tc.l{transform:translate(-165%,-50%)}.tc.r{transform:translate(65%,-50%)}.ovc{display:none}.seat{font-size:.75rem}.seat.l{left:17%}.seat.r{left:83%}.seat>div:nth-child(2){white-space:normal;max-width:88px;margin:auto;line-height:1.3}.cw{flex-direction:column;gap:4px}.tg{white-space:nowrap;font-size:.75rem}.ovc.big{display:inline-block;zoom:1.75}}
 </style></head><body><div id="app"></div><footer id="credit">made by m00n</footer>
 <div id="toast"></div><div id="connBar">연결이 끊겼어요. 다시 연결하는 중…</div>
 <button id="chatBtn">💬<span id="chatBadge"></span></button>
@@ -137,7 +152,7 @@ function bot(G,p){const h=G.hands[p];
  rooms/{코드}/meta  = {host,status:'lobby'|'playing',n,target,created,players:{id:{name,t,online}}}
  rooms/{코드}/state = 게임 상태(JSON 문자열) — 모든 행동은 트랜잭션으로 반영, 봇·트릭 정리는 방장 기기가 진행
  rooms/{코드}/pres/{id} = 접속 상태(핑) · rooms/{코드}/chat = 채팅 */
-let G=null,V=null,mode='menu',T,sel=[null,null,null],pick=null,handSig='',me=0,showRules=false,hot=false,cover=false,showStory=false,page='home';
+let G=null,V=null,mode='menu',T,sel=[null,null,null],pick=null,handSig='',me=0,showRules=false,hot=false,cover=false,showStory=false,showOvc=false,page='home';
 let db=null,ROOM=null,rr=null,RD=null,S=null,PRES={},srvOffset=0,selfOffline=false,connWatched=false,pingTimer=null,presTimer=null,DT=null,lastSig=null;
 const STALE_MS=7000,PING_MS=2500,TAKEOVER_MS=20000,ROOM_KEY='bi_room';
 const $=s=>document.querySelector(s),app=$('#app');
@@ -295,8 +310,17 @@ $('#chatInput').addEventListener('keydown',e=>{if(e.key!=='Enter'||e.isComposing
 window.addEventListener('beforeunload',()=>{try{stopPresence()}catch(e){}});
 
 /* ============ 렌더링 ============ */
-const card=(n,x='')=>`<div class="c ${COL[n]} ${x}" data-n="${n}"><u>${coin(n)}</u><b>${n}</b><i>${'●'.repeat(coin(n))}</i></div>`;
-const bottle=`<svg viewBox="0 0 24 40" width="30"><path d="M9 2h6v8l4 6v20a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V16l4-6z" fill="#74d4c8" fill-opacity=".55" stroke="#e6fffb" stroke-width="1"/><path d="M9 2h6v3H9z" fill="#c9a24a"/><circle cx="12" cy="27" r="4.2" fill="#b3362b"/><path d="M9.6 24l-1.5-3M14.4 24l1.5-3" stroke="#b3362b" stroke-width="1.5"/></svg>`;
+const SY={Y:'<svg viewBox="0 0 10 10"><path d="M5 0l1.2 3.3L9.5 2.5 7.4 5l2.1 2.5-3.3-.8L5 10 3.8 6.7.5 7.5 2.6 5 .5 2.5l3.3.8z" fill="currentColor"/></svg>',B:'<svg viewBox="0 0 10 10"><path d="M5 0l1.3 3.7L10 5 6.3 6.3 5 10 3.7 6.3 0 5l3.7-1.3z" fill="currentColor"/></svg>',R:'<svg viewBox="0 0 10 10"><path d="M5 0C6 3 9 4 8 7.5 7.5 9.2 6 10 5 10S2.5 9.2 2 7.5C1.5 5.5 3 4.5 3.5 3 4 4 4.5 4 5 0z" fill="currentColor"/></svg>'};
+const CL={1:[[50,50]],2:[[50,18],[50,82]],3:[[15,50],[50,50],[85,50]],4:[[15,25],[50,25],[85,25],[50,80]],5:[[18,20],[82,20],[50,50],[18,80],[82,80]],6:[[15,25],[50,25],[85,25],[15,75],[50,75],[85,75]]};
+const cluster=(n,c)=>`<span class="cn ${c}">${CL[coin(n)].map(([x,y])=>`<em style="left:${x}%;top:${y}%"></em>`).join('')}</span>`;
+const IMPSVG='<svg viewBox="0 0 40 50"><path d="M8 22L3 5l13 9zM32 22l5-17-13 9z" fill="#b71c24"/><circle cx="20" cy="27" r="13" fill="#d8322a"/><path d="M12 24l6 3M28 24l-6 3" stroke="#2b0a0a" stroke-width="2.2" stroke-linecap="round"/><path d="M12 33q8 8 16 0z" fill="#fff" stroke="#2b0a0a" stroke-width="1.6"/></svg>';
+const card=(n,x='')=>{const k=COL[n],cn=[`<b class=nl>${n}</b><b class=nr>${n}</b>`,`<b class=bl>${n}</b><b class=br>${n}</b>`];
+ if(n==19)return `<div class="c K ${x}" data-n="19">${cn[0]}<div class=art>${IMPSVG}</div>${cn[1]}</div>`;
+ return `<div class="c ${k} ${x}" data-n="${n}">${cn[0]}${cluster(n,'t')}<span class="sy t">${SY[k]}</span><div class=art></div><span class="sy bt">${SY[k]}</span>${cluster(n,'bt')}${cn[1]}</div>`};
+const bottle=`<svg viewBox="0 0 24 44" width="30"><defs><linearGradient id="bgl" x1="0" x2="1"><stop offset="0" stop-color="#c9b78a"/><stop offset=".5" stop-color="#f7edd2"/><stop offset="1" stop-color="#b6a374"/></linearGradient></defs><path d="M9.5 1h5v3h-5zM10 4h4v15c5 2 8 6 8 12 0 7-4 12-10 12S2 38 2 31c0-6 3-10 8-12z" fill="url(#bgl)" stroke="#8a7a52" stroke-width=".8"/></svg>`;
+const OVR=[[37,36,35,34,33,32,31,30,29],[20,21,22,23,24,25,26,27,28],[19,18,17,16,15,14,13,12,11],[1,2,3,4,5,6,7,8,9,10]];
+const ovc=(pr,big)=>`<div class="ovc${big?' big':''}"${big?'':' title="눌러서 크게 보기"'}>${OVR.map(r=>`<div>${r.map(n=>`<span class="${COL[n]}${n==pr?' cur':''}">${n}${big?'<i>'+(SY[COL[n]]||'')+'</i>':''}</span>`).join('')}</div>`).join('')}</div>`;
+const coinTable=()=>`<table><tr><th></th>${[1,2,3,4,5,6].map(k=>`<th>${k}코인</th>`).join('')}</tr>${['Y','B','R'].map(c=>`<tr><td class="${c}" style="color:var(--k)">${CN[c]}</td>${[1,2,3,4,5,6].map(k=>`<td>${Object.keys(COL).map(Number).filter(n=>COL[n]==c&&CO[n]==k).join(', ')}</td>`).join('')}</tr>`).join('')}</table>`;
 const RULES=`<p><b>목표</b> 여러 라운드 동안 점수를 모아 가장 높은 점수를 얻는 것. 라운드가 끝났을 때 병을 가진 사람은 <b>마이너스</b>를 받습니다. 종료는 미리 정한 라운드 수(모든 플레이어가 딜러를 2번 또는 1번 맡을 때까지) 또는 합의한 목표 점수 중에서 고릅니다.</p>
 <p><b>준비</b> 36장(1~37, 19 제외)을 균등 분배(3인 12장 / 4인 9장). 각자 1장을 <b>임프의 트릭</b>(19 카드 아래, 비공개)에 버리고, 왼쪽·오른쪽 이웃에게 각각 1장씩 넘기고 이웃의 카드를 받습니다. 시작 병 가격은 19.</p>
 <p><b>트릭</b> 딜러 왼쪽부터 시계방향. 첫 카드와 같은 색이 있으면 반드시 내야 하고, 없으면 아무거나. 이긴 사람이 다음 리드.</p>
@@ -326,6 +350,7 @@ const STORY=`<p>하와이에 키아웨(Keawe)라는 젊은 남자가 살고 있�
 <p class="end" style="text-align:center">— 끝 —</p>
 <p class="warn" style="text-align:center">원작: 로버트 루이스 스티븐슨 「병 속의 악마」 · <a href="http://gaslight.mtroyal.ab.ca/bottlimp.htm" target="_blank" rel="noopener" style="color:var(--gold)">원문 읽기 (영어)</a><br><a href="https://boardlife.co.kr/bbs_detail.php?tb=info_files&bbs_num=13138" target="_blank" rel="noopener" style="color:var(--gold)">보드라이프 링크</a></p>`;
 function render(){
+ document.body.classList.toggle('skybg',mode=='menu'||(mode=='online'&&!(RD&&RD.status=='playing'&&V&&V.g)));
  if(mode=='menu')return menuUI();if(mode=='online'&&!(RD&&RD.status=='playing'&&V&&V.g))return lobbyUI();if(!V||!V.g)return app.innerHTML='<div class=ov>연결 중…</div>';
  const g=V.g,n=g.n,m=V.me,hand=V.hand||[],pos=p=>{const r=(p-m+n)%n;return n==3?['b','l','r'][r]:['b','l','t','r'][r]};
  const nmz=p=>g.pl[p].name+(p==m&&!hot?' (나)':'');
@@ -340,16 +365,16 @@ function render(){
   else if(g.turn==m){L=legal({hands:{[m]:hand},trick:g.trick.map(x=>x)},m);msg=g.trick.length?`<b>${CN[COL[g.trick[0].c]]}</b>을(를) 따라 내세요`:'선 플레이어입니다. 카드를 내세요'}
   else msg=`${g.pl[g.turn].name} 차례`}
  const tk=g.trick.map(x=>`<div class="tc ${pos(x.p)}">${card(x.c)}</div>`).join('');
- app.innerHTML=`<div id=top><span>라운드 ${g.round}${g.target<0?'/'+(-g.target*g.n):''}${g.target<0?'':' · 목표 '+g.target+'점'}</span><span>${g.pl.map((x,p)=>`<span class="${p==m?'me':''}">${nm(x.name)} ${g.sc[p]}</span>`).join(' | ')}</span><span>${mode=='online'?'방 '+ROOM+' ':''}<button class=g id=rb>규칙</button>${mode=='online'?' <button class=g id=lv>나가기</button>':''}</span></div>
- <div id=tbl>${g.pl.map((_,p)=>p==m?'':seat(p)).join('')}${seat(m)}
+ app.innerHTML=`<div id=top><span>라운드 ${g.round}${g.target<0?'/'+(-g.target*g.n):''}${g.target<0?'':' · 목표 '+g.target+'점'}</span><span>${g.pl.map((x,p)=>`<span class="${p==m?'me':''}">${nm(x.name)} ${g.sc[p]}</span>`).join(' | ')}</span><span>${mode=='online'?'방 '+ROOM+' ':''}<button class=g id=ob>개요 카드</button> <button class=g id=rb>규칙</button>${mode=='online'?' <button class=g id=lv>나가기</button>':''}</span></div>
+ <div id=tbl>${g.pl.map((_,p)=>p==m?'':seat(p)).join('')}${seat(m)}${ovc(g.price)}
  <div id=ctr><div class=cw><div class=pile>${'<div class=back></div>'.repeat(2)}${card(g.price)}${bottle}</div>${prepOn?`<div><button class="tg${pick!=null?' hot':''}" data-to="0">임프의 트릭</button>${sel[0]!=null?'<div class=asg>'+card(sel[0])+'</div>':''}</div>`:''}</div><small>병 가격 ${g.price}${g.owner<0?' · 주인 없음':' · '+nm(g.pl[g.owner].name)}</small></div>${tk}</div>
- <div id=msg>${msg}</div><div id=hand>${hide?hand.map(()=>'<div class=back style="margin:0 -8px"></div>').join(''):hand.filter(c=>!(g.phase=='prep'&&sel.includes(c))).map(c=>card(c,(g.phase=='play'&&g.turn==m&&!g.wait&&!L.includes(c)?'dim ':'')+(g.phase=='prep'&&c===pick?'sel ':''))).join('')}</div>${showRules?`<div class=ov><h1>규칙</h1>${RULES}<button id=rc>닫기</button></div>`:''}${g.phase=='roundEnd'||g.phase=='over'?endUI(g,m):''}${hot&&cover?`<div class=ov style="height:100%;margin:0;max-width:none;border-radius:0;border:0;background:#0b1d1c;display:grid;place-content:center;z-index:30"><h1>${nm(g.pl[m].name)}</h1><p style="text-align:center">차례입니다. 다른 사람은 화면을 보지 마세요.</p><button id=cv>내 카드 보기</button></div>`:''}`;
+ <div id=msg>${msg}</div><div id=hand>${hide?hand.map(()=>'<div class=back style="margin:0 -8px"></div>').join(''):hand.filter(c=>!(g.phase=='prep'&&sel.includes(c))).map(c=>card(c,(g.phase=='play'&&g.turn==m&&!g.wait&&!L.includes(c)?'dim ':'')+(g.phase=='prep'&&c===pick?'sel ':''))).join('')}</div>${showRules?`<div class=ov><h1>규칙</h1>${RULES}<button id=rc>닫기</button></div>`:''}${showOvc?`<div class="ov wide"><h1>개요 카드</h1>${ovc(g.price,1)}<p class=warn style="text-align:center">주황 칸이 현재 병 가격입니다. 색마다 숫자가 커질수록 코인이 1,1,2,2,…,6,6개로 늘어납니다.</p>${coinTable()}<button id=oc>닫기</button></div>`:''}${g.phase=='roundEnd'||g.phase=='over'?endUI(g,m):''}${hot&&cover?`<div class=ov style="height:100%;margin:0;max-width:none;border-radius:0;border:0;background:#0b1d1c;display:grid;place-content:center;z-index:30"><h1>${nm(g.pl[m].name)}</h1><p style="text-align:center">차례입니다. 다른 사람은 화면을 보지 마세요.</p><button id=cv>내 카드 보기</button></div>`:''}`;
  $('#hand').onclick=e=>{if(hide)return;const el=e.target.closest('.c');if(!el||el.classList.contains('dim'))return;const c=+el.dataset.n;
   if(g.phase=='prep'&&!g.prepDone.includes(m)){pick=pick===c?null:c;render()}
   else if(g.phase=='play'&&g.turn==m&&!g.wait)send({t:'play',c})};
  $('#ok')&&($('#ok').onclick=()=>send({t:'prep',d:sel[0],l:sel[1],r:sel[2]}));
  document.querySelectorAll('.tg').forEach(b=>b.onclick=()=>assign(+b.dataset.to));
- $('#lv')&&($('#lv').onclick=()=>{if(confirm('방에서 나갈까요?'))leaveRoom()});$('#cv')&&($('#cv').onclick=()=>{cover=false;render()});$('#rb').onclick=()=>{showRules=true;render()};$('#rc')&&($('#rc').onclick=()=>{showRules=false;render()});
+ $('#lv')&&($('#lv').onclick=()=>{if(confirm('방에서 나갈까요?'))leaveRoom()});$('#cv')&&($('#cv').onclick=()=>{cover=false;render()});$('#rb').onclick=()=>{showRules=true;render()};$('#ob').onclick=()=>{showOvc=true;render()};$('#oc')&&($('#oc').onclick=()=>{showOvc=false;render()});{const o=$('.ovc:not(.big)');o&&(o.onclick=()=>{showOvc=true;render()})}$('#rc')&&($('#rc').onclick=()=>{showRules=false;render()});
  $('#nx')&&($('#nx').onclick=()=>send({t:'next'}));$('#mn')&&($('#mn').onclick=()=>mode=='online'?leaveRoom():location.reload());$('#rs')&&($('#rs').onclick=restartOnline)}
 function endUI(g,m){const w=g.phase=='over'?g.sc.indexOf(Math.max(...g.sc)):-1;
  return`<div class=ov><h1>${g.phase=='over'?'게임 종료':'라운드 '+g.round+' 결과'}</h1>
@@ -360,13 +385,13 @@ function endUI(g,m){const w=g.phase=='over'?g.sc.indexOf(Math.max(...g.sc)):-1;
 function menuUI(){const ok=fbReady(),v=id=>$('#'+id).value,bk='<div class=row><button class=g id=bk>← 처음으로</button></div>';
  const opts=`<div class=row><label>인원 <select id=n><option>3</option><option>4</option></select></label><label>종료 <select id=t><option value=-2>모두 딜러 2번</option><option value=-1>모두 딜러 1번</option><option value=200>200점</option><option value=300>300점</option><option value=500>500점</option></select></label></div>`;
  const pages={
- home:`<div style="font-size:3rem">🍾</div><h1>보틀임프</h1><div class=warn>Günter Cornett의 카드게임 · 비공식 팬 구현</div>
+ home:`<div class=hb>${bottle}</div><h1>보틀임프</h1><div class=warn>Günter Cornett의 카드게임 · 비공식 팬 구현</div>
   <div class=row style="flex-direction:column;align-items:stretch;margin-top:18px"><button id=pl>로컬 플레이</button><button id=po>온라인 플레이</button><button class=g id=rl>규칙</button><button class=g id=sb>이야기</button></div>`,
  local:`<h1>로컬 플레이</h1><p class=warn>한 기기에서 진행합니다. 사람이 2명 이상이면 차례마다 기기를 넘겨 주세요.</p>${opts}<div id=seats></div><div class=row><button id=loc>시작</button></div>${bk}`,
  story:`<h1>병 속의 악마</h1><div class=story>${STORY}</div>${bk}`,
  online:`<h1>온라인 플레이</h1>${ok?'':'<div class=warnbox>index.html 상단 FB 설정을 채우면 온라인 모드를 쓸 수 있어요. (로컬은 그대로 가능)</div>'}<div id=resume></div><div class=row><input id=nick placeholder="닉네임" maxlength=12 value="${esc(LS.get())}"></div>
   ${opts}<div class=row><button id=mk>방 만들기</button></div><div class=row><input id=cd placeholder="방 코드" maxlength=4 size=6 value="${esc((new URLSearchParams(location.search).get('room')||'').toUpperCase().slice(0,4))}" style="text-transform:uppercase"><button class=g id=jn>참가</button></div>${bk}`};
- app.innerHTML=`<div id=menu class="${page=='story'?'wide':''}">${pages[page]}</div>${showRules?`<div class=ov><h1>규칙</h1>${RULES}<button id=rc>닫기</button></div>`:''}${showStory?`<div class=ov><h1>병 속의 악마</h1>${STORY}<button id=sc>닫기</button></div>`:''}`;
+ app.innerHTML=`<div id=menu class="${page=='story'?'wide':'sky'}">${pages[page]}</div>${showRules?`<div class=ov><h1>규칙</h1>${RULES}<button id=rc>닫기</button></div>`:''}${showStory?`<div class=ov><h1>병 속의 악마</h1>${STORY}<button id=sc>닫기</button></div>`:''}`;
  const go=p=>()=>{page=p;render()},on=(id,f)=>{const e=$('#'+id);if(e)e.onclick=f};
  on('pl',go('local'));on('po',go('online'));on('bk',go('home'));
  on('rl',()=>{showRules=true;render()});on('rc',()=>{showRules=false;render()});on('sb',go('story'));on('sc',()=>{showStory=false;render()});
@@ -380,7 +405,7 @@ function menuUI(){const ok=fbReady(),v=id=>$('#'+id).value,bk='<div class=row><b
 function lobbyUI(){const r=RD;if(!r)return app.innerHTML='<div id=menu>연결 중…</div>';
  if(r.status=='playing')return app.innerHTML='<div id=menu>게임을 불러오는 중…</div>';
  const ps=Object.entries(r.players||{}).sort((a,b)=>a[1].t-b[1].t),host=r.host==myId,link=location.origin+location.pathname+'?room='+ROOM;
- app.innerHTML=`<div id=menu><h1>대기실</h1><p class=warn>방 코드</p><div class=code>${esc(ROOM)}</div><div class=row><button class=g id=lbCopy>초대 링크 복사</button></div>
+ app.innerHTML=`<div id=menu class=sky><h1>대기실</h1><p class=warn>방 코드</p><div class=code>${esc(ROOM)}</div><div class=row><button class=g id=lbCopy>초대 링크 복사</button></div>
  <ul class=plist>${Array.from({length:r.n},(_,i)=>{const e=ps[i];return e?`<li><span class="dot ${presCls(e[0])}" data-pid="${esc(e[0])}"></span>${esc(nm(e[1].name))}${e[0]==r.host?' <span class=tag>방장</span>':''}${e[0]==myId?' <span class=tag>나</span>':''}</li>`:'<li class=warn>빈 자리 — 시작하면 봇이 채워요</li>'}).join('')}</ul>
  <p class=warn>${Math.min(ps.length,r.n)}/${r.n}명 · ${r.target<0?'모두 딜러 '+(-r.target)+'번':r.target+'점'}까지</p>
  ${host?'<button id=lbStart>게임 시작</button>':'<p class=warn>방장이 시작하기를 기다리는 중…</p>'}<div class=row><button class=g id=lbLeave>나가기</button></div></div>`;
