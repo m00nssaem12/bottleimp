@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>보틀임프 Bottle Imp</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Dodum&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+:root{--ink:#0d2624;--felt:#14403b;--ivory:#efe4c8;--gold:#c9a24a;--Y:#d9a824;--B:#2c67ad;--R:#b3362b;--txt:#f1e7cf;--fb:'Gowun Dodum','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--ft:'Black Han Sans','Apple SD Gothic Neo',sans-serif;--fn:'Playfair Display',Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--txt);font-family:var(--fb);line-height:1.5;background:radial-gradient(ellipse at 50% 35%,#1b524b,var(--ink) 75%)}
+button{font:inherit;cursor:pointer;color:var(--ink);background:var(--gold);border:0;border-radius:6px;padding:.55em 1.1em;font-weight:700}
+button.g{background:transparent;color:var(--txt);border:1px solid var(--gold)}button:disabled{opacity:.4;cursor:default}
+input,select{font:inherit;padding:.5em;border-radius:6px;border:1px solid var(--gold);background:#0b1d1c;color:var(--txt)}
+#menu,.ov{max-width:440px;margin:6vh auto;padding:24px;border:2px solid var(--gold);border-radius:10px;background:#0b1d1cee;text-align:center}
+h1{font-size:2.2rem;margin:.1em 0;font-weight:400;font-family:var(--ft);letter-spacing:.06em;color:var(--gold)}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0;align-items:center}
+.warn{font-size:.75rem;opacity:.7}
+/* cards */
+.c{width:58px;height:86px;border-radius:7px;background:var(--ivory);border:3px solid var(--k);position:relative;color:#2a2118;flex:none;
+ background-image:radial-gradient(circle at 50% 50%,transparent 26px,color-mix(in srgb,var(--k) 18%,transparent) 27px,transparent 40px)}
+.c b{position:absolute;inset:0;display:grid;place-items:center;font-size:1.5rem;font-weight:900;font-family:var(--fn);color:var(--k)}
+.c i{position:absolute;left:0;right:0;bottom:3px;text-align:center;font-style:normal;font-size:.55rem;color:#b8860b;letter-spacing:1px;text-shadow:0 0 1px #8a6508}
+.c u{position:absolute;top:2px;left:4px;font-size:.6rem;text-decoration:none}
+.Y{--k:var(--Y)}.B{--k:var(--B)}.R{--k:var(--R)}.K{--k:#111;background:#1a1a1a;color:var(--gold)}.K b{color:var(--gold)}
+.back{width:58px;height:86px;border-radius:7px;border:2px solid var(--gold);background:repeating-conic-gradient(#12302d 0 25%,#1d4a44 0 50%) 0 0/14px 14px}
+/* table */
+#top{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;font-size:.85rem;flex-wrap:wrap;background:#0006}
+#top span.me{color:var(--gold);font-weight:700}
+#tbl{position:relative;height:min(58vh,470px);max-width:820px;margin:8px auto;border:3px solid #7a5b21;border-radius:50% / 40%;background:radial-gradient(var(--felt),#0e2c29);box-shadow:inset 0 0 40px #000a}
+.seat{position:absolute;text-align:center;font-size:.8rem;transform:translate(-50%,-50%);white-space:nowrap}
+.seat.l{left:9%;top:50%}.seat.r{left:91%;top:50%}.seat.t{left:50%;top:9%}.seat.b{left:50%;top:93%}
+.seat .n{padding:2px 10px;border-radius:12px;background:#000a;border:1px solid var(--gold)}.seat.turn .n{background:var(--gold);color:var(--ink);font-weight:700}
+#ctr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center}
+.pile{position:relative;width:78px;height:96px}.pile>*{position:absolute;left:6px;top:4px}
+.pile .back:nth-child(1){transform:rotate(-7deg)}.pile .back:nth-child(2){transform:rotate(5deg)}
+.pile svg{left:26px;top:-16px;z-index:5;filter:drop-shadow(0 2px 3px #000)}
+#ctr small{margin-top:4px;font-size:.7rem;background:#000a;padding:1px 8px;border-radius:10px}
+.tc{position:absolute;left:50%;top:50%;z-index:3}
+.tc.b{transform:translate(-50%,-5%)}.tc.l{transform:translate(-190%,-50%)}.tc.t{transform:translate(-50%,-105%)}.tc.r{transform:translate(90%,-50%)}
+.tc.win .c{box-shadow:0 0 0 3px var(--gold),0 0 18px var(--gold)}
+#msg{text-align:center;min-height:2.6em;padding:4px 10px;font-size:.95rem}
+#hand{display:flex;justify-content:center;flex-wrap:wrap;gap:0;padding:6px 10px 24px}
+#hand .c{margin:0 -6px;transition:transform .12s;cursor:pointer}#hand .c:hover{transform:translateY(-10px)}
+#hand .c.dim{filter:brightness(.55);cursor:not-allowed}#hand .c.sel{transform:translateY(-16px);box-shadow:0 0 0 3px var(--gold)}
+#hand .c em{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-size:.6rem;padding:0 6px;border-radius:8px;font-style:normal;white-space:nowrap}
+.ov{position:fixed;inset:0;height:max-content;margin:8vh auto;z-index:20;max-height:84vh;overflow:auto}
+.ov table{width:100%;border-collapse:collapse;margin:8px 0}.ov td,.ov th{padding:4px;border-bottom:1px solid #ffffff22}
+.ov p{text-align:left;font-size:.85rem;line-height:1.55;margin:.4em 0}
+.imp{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;transform:scale(.6);margin:-14px 0}
+#mk{text-align:center;font-size:.75rem;letter-spacing:.12em;opacity:.55;padding:10px 0 18px}#toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);background:#000d;color:#fff;padding:8px 16px;border-radius:20px;font-size:.85rem;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw;text-align:center}#toast.on{opacity:1}
+#connBar{display:none;position:fixed;top:0;left:0;right:0;background:var(--R);color:#fff;text-align:center;padding:4px;font-size:.8rem;z-index:70}#connBar.on{display:block}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;background:#777;vertical-align:middle}.dot.good{background:#4cd964}.dot.mid{background:#ffd60a}.dot.bad{background:#ff9f0a}.dot.stale{background:#ff453a}
+.code{font-size:2.2rem;letter-spacing:.25em;color:var(--gold);font-family:var(--fn);font-weight:900}
+.plist{list-style:none;padding:0;margin:10px 0;text-align:left}.plist li{padding:6px 10px;border-bottom:1px solid #ffffff22}
+.tag{font-size:.65rem;background:var(--gold);color:var(--ink);padding:1px 7px;border-radius:9px;margin-left:4px}
+.warnbox{border:1px solid var(--gold);border-radius:8px;padding:8px;font-size:.85rem;margin:8px 0}
+#chatBtn{display:none;position:fixed;right:14px;bottom:14px;width:46px;height:46px;border-radius:50%;padding:0;font-size:1.3rem;z-index:40}#chatBtn.on{display:block}
+#chatBadge{display:none;position:absolute;top:-4px;right:-4px;background:var(--R);color:#fff;font-size:.65rem;border-radius:10px;padding:1px 5px}#chatBadge.on{display:block}
+#chatBox{display:none;position:fixed;right:14px;bottom:70px;width:min(320px,92vw);height:300px;background:#0b1d1cf2;border:1px solid var(--gold);border-radius:10px;z-index:45;flex-direction:column}#chatBox.on{display:flex}
+#chatLog{flex:1;overflow:auto;padding:8px;font-size:.8rem}.chat-m{margin:4px 0;word-break:break-all}.chat-m .who{color:var(--gold);margin-right:6px}.chat-m.me .who{color:#7fd6c8}.chat-none{opacity:.6;text-align:center;margin-top:20px}
+#chatBox .in{display:flex;gap:4px;padding:6px}#chatBox input{flex:1;min-width:0}#chatTip{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);background:#000c;font-size:.7rem;padding:2px 10px;border-radius:10px;opacity:0;transition:.2s;white-space:nowrap}#chatTip.on{opacity:1}
+.cw{display:flex;align-items:center;gap:12px}.tg{font-size:.75rem;padding:.4em .8em}.tg.hot{outline:2px solid #fff;animation:pl 1s infinite}@keyframes pl{50%{box-shadow:0 0 14px var(--gold)}}.asg{zoom:.6;display:flex;justify-content:center;margin-top:4px}
+#menu.wide{max-width:640px}.story p{text-align:left;line-height:1.85;font-size:1rem;margin:.9em 0}.story .rule{margin:.3em 0 .3em 1em;padding-left:.6em;border-left:3px solid var(--gold)}.end{color:var(--gold);letter-spacing:.3em;margin:1.5em 0}
+@media(max-width:600px){.c{width:46px;height:70px}.c b{font-size:1.2rem}.back{width:46px;height:70px}#hand .c{margin:0 -8px}.tc.l{transform:translate(-165%,-50%)}.tc.r{transform:translate(65%,-50%)}}
+</style></head><body><div id="app"></div><footer id="mk">made by m00n</footer>
+<div id="toast"></div><div id="connBar">연결이 끊겼어요. 다시 연결하는 중…</div>
+<button id="chatBtn">💬<span id="chatBadge"></span></button>
+<div id="chatBox"><div id="chatLog"></div><div id="chatTip"></div><div class="in"><input id="chatInput" maxlength="150" placeholder="메시지"><button id="chatSend">전송</button><button class="g" id="chatClose">✕</button></div></div>
+<script type="module">
+/* ============ 설정 ============ */
+// 온라인 플레이: Firebase 콘솔 > 프로젝트 설정 > 웹앱 config 를 붙여넣으세요 (Realtime Database 필요)
+// Realtime Database 규칙: rooms/$roomId 아래에 meta / state / pres / chat 을 저장합니다.
+const FB={
+  apiKey:"AIzaSyALXtN4eSdNYhMONsSBcj6EBJZH_KoTJkU",
+  authDomain:"bottleimp-6581b.firebaseapp.com",
+  databaseURL:"https://bottleimp-6581b-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"bottleimp-6581b",
+  storageBucket:"bottleimp-6581b.firebasestorage.app",
+  messagingSenderId:"585204357112",
+  appId:"1:585204357112:web:c48ee602c74a4b6863e80d"
+};
+
+/* ============ 카드 데이터 (실물 개요 카드/카드 사진으로 확인) ============
+ 색: 개요 카드 기준 노랑·파랑·빨강 각 12장 (19 제외).
+ 코인: 각 색 안에서 숫자가 커질수록 1,1,2,2,3,3,4,4,5,5,6,6 (색당 42, 합계 126). 사진에서 읽은 값 대부분이 이 규칙과 일치했습니다. */
+const YEL=[1,2,3,5,7,9,12,15,18,22,25,28], BLU=[4,6,8,10,13,17,20,24,27,30,32,34];
+const COL={},CO={};for(let n=1;n<=37;n++)COL[n]=n==19?'K':YEL.includes(n)?'Y':BLU.includes(n)?'B':'R';
+['Y','B','R'].forEach(k=>Object.keys(COL).map(Number).filter(n=>COL[n]==k).sort((x,y)=>x-y).forEach((n,i)=>CO[n]=(i>>1)+1));CO[19]=0;
+const coin=n=>CO[n], sum=a=>a.reduce((s,n)=>s+coin(n),0), CN={Y:'노랑',B:'파랑',R:'빨강'};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const nm=s=>String(s||'').replace(/[<>&"'`]/g,'').slice(0,12)||'익명';
+
+/* ============ 게임 엔진 (공식 규칙: 3~4인) ============ */
+function startGame(pl,target){const G={n:pl.length,pl,target,dealer:Math.random()*pl.length|0,round:0,sc:pl.map(()=>0)};deal(G);return G}
+function deal(G){const n=G.n,k=36/n,d=shuffle(Array.from({length:37},(_,i)=>i+1).filter(x=>x!=19));
+ G.round++;G.hands=Array.from({length:n},(_,i)=>d.slice(i*k,i*k+k).sort((a,b)=>a-b));
+ G.imp=[];G.price=19;G.owner=-1;G.won=G.hands.map(()=>[]);G.trick=[];G.prep={};G.phase='prep';
+ G.turn=G.lead=(G.dealer+1)%n;G.wait=false;G.last=null;G.lastW=-1}
+const legal=(G,p)=>{const h=G.hands[p];if(!G.trick.length)return h;const c=COL[G.trick[0].c],m=h.filter(x=>COL[x]==c);return m.length?m:h};
+function act(G,p,a){const n=G.n;
+ if(a.t=='prep'&&G.phase=='prep'&&!G.prep[p]){const s=[a.d,a.l,a.r];
+  if(new Set(s).size<3||!s.every(c=>G.hands[p].includes(c)))return;
+  G.prep[p]=s;
+  if(Object.keys(G.prep).length==n){const add=G.hands.map(()=>[]);
+   for(let q=0;q<n;q++){const [d,l,r]=G.prep[q];G.hands[q]=G.hands[q].filter(c=>c!=d&&c!=l&&c!=r);G.imp.push(d);
+    add[(q+1)%n].push(l);add[(q+n-1)%n].push(r)}      // 왼쪽 이웃 = 시계방향 다음 사람
+   G.hands=G.hands.map((h,q)=>h.concat(add[q]).sort((x,y)=>x-y));G.phase='play';G.prep={}}}
+ else if(a.t=='play'&&G.phase=='play'&&!G.wait&&G.turn==p&&G.hands[p].includes(a.c)&&legal(G,p).includes(a.c)){
+  if(G.trick.length==0)G.lastW=-1;
+  G.hands[p]=G.hands[p].filter(c=>c!=a.c);G.trick.push({p,c:a.c});
+  if(G.trick.length==n)G.wait=true;else G.turn=(p+1)%n}
+ else if(a.t=='next'&&G.phase=='roundEnd'){G.dealer=(G.dealer+1)%n;deal(G)}}
+function resolve(G){const t=G.trick,low=t.filter(x=>x.c<G.price);let w;
+ if(low.length){w=low.reduce((a,b)=>b.c>a.c?b:a);            // 가격 미만 중 가장 높은 카드 = 트릭 + 병
+  if(G.owner>=0)G.won[G.owner].push(G.price);                 // 이전 가격 카드는 이전 주인에게 (19는 제외)
+  G.owner=w.p;G.price=w.c;t.forEach(x=>{if(x!==w)G.won[w.p].push(x.c)})}
+ else{w=t.reduce((a,b)=>b.c>a.c?b:a);t.forEach(x=>G.won[w.p].push(x.c))} // 전부 가격 초과: 최고 숫자(색 무관)
+ G.lastW=w.p;G.wait=false;G.trick=[];G.turn=G.lead=w.p;
+ if(G.hands.every(h=>!h.length)){                             // 라운드 종료 점수 계산
+  const pts=G.pl.map((_,p)=>p==G.owner?-sum(G.imp):sum(G.won[p]));pts.forEach((v,p)=>G.sc[p]+=v);
+  G.last={pts,owner:G.owner};G.phase=(G.target<0?G.round>=-G.target*G.n:Math.max(...G.sc)>=G.target)?'over':'roundEnd'}}
+const pubOf=G=>{const{hands,prep,imp,won,...r}=G,end=G.phase=='roundEnd'||G.phase=='over';
+ return{...r,cnt:hands.map(h=>h.length),wonN:won.map(a=>a.length),impN:imp.length,imp:end?imp:[],prepDone:Object.keys(prep).map(Number)}};
+
+/* ============ 봇 ============ */
+function bot(G,p){const h=G.hands[p];
+ if(G.phase=='prep'){const d=[...h].sort((a,b)=>coin(a)-coin(b)||b-a)[0],r=h.filter(c=>c!=d).sort((a,b)=>a-b);return{t:'prep',d,l:r[0],r:r[1]}}
+ const tr=G.trick.map(x=>x.c),pr=G.price,last=tr.length==G.n-1,hi=Math.max(0,...tr.filter(x=>x>=pr)),lo=tr.filter(x=>x<pr);
+ const sc=c=>{let s=Math.random();
+  if(!tr.length)return s+(c<pr?-8+c*.3:4-(c-pr)*.1);
+  if(c<pr)return s+(lo.some(x=>x>c)?30-c:last?-40+c:-15+c*.5);
+  if(c>hi&&!lo.length)return s+(last?5+sum(tr)+coin(c):2);
+  return s+(lo.length?0:3-c*.05)};
+ return{t:'play',c:legal(G,p).reduce((a,b)=>sc(b)>sc(a)?b:a)}}
+
+/* ============ 상태/네트워크 ============
+ rooms/{코드}/meta  = {host,status:'lobby'|'playing',n,target,created,players:{id:{name,t,online}}}
+ rooms/{코드}/state = 게임 상태(JSON 문자열) — 모든 행동은 트랜잭션으로 반영, 봇·트릭 정리는 방장 기기가 진행
+ rooms/{코드}/pres/{id} = 접속 상태(핑) · rooms/{코드}/chat = 채팅 */
+let G=null,V=null,mode='menu',T,sel=[null,null,null],pick=null,handSig='',me=0,showRules=false,hot=false,cover=false,showStory=false,page='home';
+let db=null,ROOM=null,rr=null,RD=null,S=null,PRES={},srvOffset=0,selfOffline=false,connWatched=false,pingTimer=null,presTimer=null,DT=null,lastSig=null;
+const STALE_MS=7000,PING_MS=2500,TAKEOVER_MS=20000,ROOM_KEY='bi_room';
+const $=s=>document.querySelector(s),app=$('#app');
+const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+const LS={get:()=>store.get('bi_name')||'',set:v=>store.set('bi_name',v)};
+const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const newPid=()=>Math.random().toString(36).slice(2,10);
+const myId=(()=>{try{let v=sessionStorage.getItem('bi_pid');if(!v){v=newPid();sessionStorage.setItem('bi_pid',v)}return v}catch(e){return newPid()}})();
+const BOTS=['로파카','코쿠아','케아웨'];
+let toastT;const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2600)};
+const serverNow=()=>Date.now()+srvOffset;
+/* 카드 보내기: 손패에서 카드를 고르고(pick), 보낼 곳 버튼(0=임프의 트릭, 1=왼쪽 이웃, 2=오른쪽 이웃)을 누른다 */
+function resetSel(){sel=[null,null,null];pick=null}
+function syncSel(h,g){const k=JSON.stringify(h)+g.phase+g.round+me;if(k!==handSig){handSig=k;resetSel()}}
+function assign(k){if(pick!=null){sel[k]=pick;pick=null}else if(sel[k]!=null)sel[k]=null;render()}
+
+/* ---------- 로컬 ---------- */
+function tick(){clearTimeout(T);
+ if(G.phase=='play'&&G.wait)T=setTimeout(()=>{resolve(G);tick()},1700);
+ else if(G.phase=='prep'){const b=G.pl.findIndex((x,p)=>x.bot&&!G.prep[p]);if(b>=0)T=setTimeout(()=>{act(G,b,bot(G,b));tick()},350)}
+ else if(G.phase=='play'&&G.pl[G.turn].bot)T=setTimeout(()=>{act(G,G.turn,bot(G,G.turn));tick()},1000);
+ if(hot){const a=G.phase=='prep'?G.pl.findIndex((x,p)=>!x.bot&&!G.prep[p]):G.phase=='play'&&!G.wait&&!G.pl[G.turn].bot?G.turn:-1;if(a>=0&&a!=me){me=a;cover=true}}
+ V={g:pubOf(G),hand:G.hands[me],me};syncSel(V.hand,V.g);render()}
+function localStart(n,target,cfg){mode='local';hot=cfg.filter(x=>!x.bot).length>1;me=cfg.findIndex(x=>!x.bot);cover=hot;G=startGame(cfg.slice(0,n),target);tick()}
+
+/* ---------- 행동 전송 ---------- */
+function send(a){
+ if(mode=='local'){act(G,me,a);tick();return}
+ if(!rr)return;
+ if(a.t=='next'&&!(RD&&RD.host==myId))return;
+ rr.child('state').transaction(cur=>{if(cur==null)return cur;const s=JSON.parse(cur),p=s.pl.findIndex(x=>x.id==myId);if(p<0)return;
+  const before=JSON.stringify(s);act(s,p,a);const after=JSON.stringify(s);return after==before?undefined:after},e=>{if(e)toast('연결 문제: '+e.message)},false)}
+/* 방장 기기: 봇 행동과 트릭 정리를 진행 (트랜잭션 안에서 조건을 다시 확인하므로 중복 실행돼도 안전) */
+function drive(){
+ if(mode!='online'||!S||!RD||RD.host!=myId){clearTimeout(DT);lastSig=null;return}
+ const sig=[S.round,S.phase,S.turn,S.wait,S.trick.length,Object.keys(S.prep).length,S.hands.map(h=>h.length).join(),RD.host].join(':');
+ if(sig===lastSig)return;lastSig=sig;clearTimeout(DT);
+ const step=(ms,fn)=>{DT=setTimeout(()=>rr&&rr.child('state').transaction(cur=>{if(cur==null)return cur;const s=JSON.parse(cur);return fn(s)?JSON.stringify(s):undefined},null,false),ms)};
+ if(S.phase=='play'&&S.wait)step(1700,s=>s.phase=='play'&&s.wait&&(resolve(s),1));
+ else if(S.phase=='prep'){if(S.pl.some((x,p)=>x.bot&&!S.prep[p]))step(350,s=>{const q=s.pl.findIndex((x,p)=>x.bot&&!s.prep[p]);if(q<0||s.phase!='prep')return 0;act(s,q,bot(s,q));return 1})}
+ else if(S.phase=='play'&&S.pl[S.turn].bot)step(1000,s=>{if(s.phase!='play'||s.wait||!s.pl[s.turn].bot)return 0;act(s,s.turn,bot(s,s.turn));return 1})}
+
+/* ---------- 온라인 방 ---------- */
+function fbReady(){if(db)return true;if(!FB.apiKey||!FB.databaseURL||typeof firebase==='undefined')return false;try{firebase.initializeApp(FB);db=firebase.database();return true}catch(e){console.error(e);return false}}
+const TS=()=>firebase.database.ServerValue.TIMESTAMP;
+const genCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ';let c='';for(let i=0;i<4;i++)c+=A[Math.random()*A.length|0];return c};
+function getName(v){v=(v||'').trim();if(!v){toast('이름을 입력해 주세요');return null}v=nm(v);LS.set(v);return v}
+async function createRoom(name,n,target){
+ if(!fbReady())return toast('Firebase 설정이 필요해요');name=getName(name);if(!name)return;
+ try{let c=genCode();for(let k=0;k<6;k++){const sn=await db.ref('rooms/'+c+'/meta').get();if(!sn.exists())break;c=genCode()}
+  await db.ref('rooms/'+c+'/meta').set({host:myId,status:'lobby',n,target,created:TS(),players:{[myId]:{name,t:Date.now(),online:true}}});enterRoom(c)}
+ catch(e){toast('방을 만들지 못했어요: '+e.message)}}
+async function joinRoom(name,c){
+ if(!fbReady())return toast('Firebase 설정이 필요해요');name=getName(name);if(!name)return;c=(c||'').trim().toUpperCase();
+ if(c.length!==4)return toast('4글자 방 코드를 입력해 주세요');
+ try{const sn=await db.ref('rooms/'+c+'/meta').get();if(!sn.exists())return toast('그런 방이 없어요. 코드를 확인해 주세요');
+  const r=sn.val(),ps=r.players||{};
+  if(!ps[myId]){if(r.status!=='lobby')return toast('이미 게임이 시작된 방이에요');
+   const res=await db.ref('rooms/'+c+'/meta/players').transaction(cur=>{cur=cur||{};if(cur[myId])return cur;if(Object.keys(cur).length>=r.n)return;cur[myId]={name,t:Date.now(),online:true};return cur});
+   if(!res.committed)return toast('방이 가득 찼어요')}
+  enterRoom(c)}catch(e){toast('들어가지 못했어요: '+e.message)}}
+function enterRoom(c){mode='online';hot=false;cover=false;ROOM=c;rr=db.ref('rooms/'+c);S=null;V=null;RD=null;me=-1;lastSig=null;resetSel();page='home';
+ const on=rr.child('meta/players/'+myId+'/online');on.set(true);on.onDisconnect().set(false);
+ store.set(ROOM_KEY,JSON.stringify({code:c,id:myId,t:Date.now()}));
+ watchConnection();startPresence(c);attachChat(c);
+ try{history.replaceState(null,'','?room='+c)}catch(e){}
+ rr.child('meta').on('value',sn=>onMeta(sn.val()));
+ rr.child('state').on('value',sn=>onState(sn.val()));render()}
+function onMeta(m){if(mode!=='online')return;
+ if(!m){toast('방이 사라졌어요');leaveRoom();return}
+ RD=m;if((!m.players||!m.players[myId])&&m.status==='lobby'){toast('방에서 나왔어요');leaveRoom();return}
+ if(m.status!=='playing'){S=null;V=null}
+ maybeMoveHost();render();drive()}
+function onState(str){if(mode!=='online')return;
+ if(!str){S=null;V=null;render();return}
+ S=JSON.parse(str);me=S.pl.findIndex(p=>p.id===myId);if(me<0){toast('이 방의 참가자가 아니에요');return}
+ V={g:pubOf(S),hand:S.hands[me],me};syncSel(V.hand,V.g);render();drive()}
+function startOnline(){if(!RD||RD.host!==myId)return;
+ const ps=Object.entries(RD.players||{}).sort((a,b)=>a[1].t-b[1].t);let bi=0;
+ const pl=Array.from({length:RD.n},(_,i)=>ps[i]?{id:ps[i][0],name:nm(ps[i][1].name),bot:false}:{name:BOTS[bi++%3],bot:true});
+ rr.update({'meta/status':'playing',state:JSON.stringify(startGame(pl,RD.target))})}
+function restartOnline(){if(!S||!RD||RD.host!==myId)return;rr.child('state').set(JSON.stringify(startGame(S.pl.map(p=>({id:p.id,name:p.name,bot:p.bot})),S.target)))}
+
+/* ---------- 접속 감시 / 접속 상태(핑) ---------- */
+function watchConnection(){if(connWatched||!db)return;connWatched=true;
+ db.ref('.info/serverTimeOffset').on('value',sn=>{srvOffset=sn.val()||0});
+ db.ref('.info/connected').on('value',sn=>{selfOffline=sn.val()!==true;
+  if(!selfOffline&&ROOM){const r=db.ref(`rooms/${ROOM}/pres/${myId}`);r.onDisconnect().update({connected:false});r.update({connected:true,lastSeen:TS()});
+   const o=db.ref(`rooms/${ROOM}/meta/players/${myId}/online`);o.onDisconnect().set(false);o.set(true)}
+  $('#connBar').classList.toggle('on',mode==='online'&&selfOffline)})}
+function startPresence(code){const r=db.ref(`rooms/${code}/pres/${myId}`);
+ r.set({name:LS.get()||'손님',connected:true,lastSeen:TS(),pingMs:null});r.onDisconnect().update({connected:false});
+ db.ref(`rooms/${code}/pres`).on('value',sn=>{PRES=sn.val()||{};paintPresence()});
+ clearInterval(pingTimer);pingTimer=setInterval(()=>{if(mode!=='online'||!ROOM)return;const t0=Date.now();r.update({lastSeen:TS()}).then(()=>{if(ROOM===code)return r.update({pingMs:Date.now()-t0,connected:true})}).catch(()=>{})},PING_MS);
+ clearInterval(presTimer);presTimer=setInterval(()=>{paintPresence();maybeMoveHost()},1000)}
+function stopPresence(){clearInterval(pingTimer);pingTimer=null;clearInterval(presTimer);presTimer=null;if(ROOM&&db)db.ref(`rooms/${ROOM}/pres`).off();PRES={}}
+function presCls(id){const m=PRES[id];if(!m)return'off';if(m.connected===false)return'stale';if(m.lastSeen&&serverNow()-m.lastSeen>STALE_MS)return'stale';return m.pingMs==null?'mid':(m.pingMs<150?'good':m.pingMs<400?'mid':'bad')}
+function paintPresence(){$('#connBar').classList.toggle('on',mode==='online'&&selfOffline);if(mode!=='online')return;document.querySelectorAll('.dot[data-pid]').forEach(el=>{el.className='dot '+presCls(el.dataset.pid)})}
+/* 방장이 오래 사라지면 남은 사람 중 가장 먼저 들어온 사람이 방장을 이어받는다 (대기실·게임 중 모두) */
+function maybeMoveHost(){if(!RD||!rr)return;const h=PRES[RD.host];if(h&&h.lastSeen&&serverNow()-h.lastSeen<TAKEOVER_MS)return;
+ const alive=Object.entries(RD.players||{}).sort((a,b)=>a[1].t-b[1].t).map(([id])=>id).filter(id=>{const m=PRES[id];return m&&m.connected!==false&&serverNow()-(m.lastSeen||0)<STALE_MS});
+ if(alive.length&&alive[0]===myId&&RD.host!==myId)rr.child('meta/host').set(myId)}
+function leaveRoom(){const c=ROOM,ref=rr,data=RD;detachChat();stopPresence();store.del(ROOM_KEY);clearTimeout(DT);lastSig=null;
+ if(c&&db){const pr=db.ref(`rooms/${c}/pres/${myId}`);pr.onDisconnect().cancel();pr.remove().catch(()=>{})}
+ if(ref){ref.child('meta').off();ref.child('state').off();
+  const online=ref.child('meta/players/'+myId+'/online');online.onDisconnect().cancel();
+  const others=Object.keys((data&&data.players)||{}).filter(id=>id!==myId);
+  const lastOne=data&&others.every(id=>data.players[id].online===false);
+  if(data&&(!others.length||lastOne))ref.remove().catch(()=>{});
+  else if(data&&data.status==='lobby'){ref.child('meta/players/'+myId).remove().catch(()=>{});if(data.host===myId)ref.child('meta/host').set(others[0]).catch(()=>{})}
+  else online.set(false).catch(()=>{})}
+ rr=null;ROOM=null;RD=null;S=null;V=null;me=-1;mode='menu';page='home';
+ try{history.replaceState(null,'',location.pathname)}catch(e){}
+ render()}
+function savedRoom(){try{const v=JSON.parse(store.get(ROOM_KEY)||'null');if(!v||!v.code)return null;if(Date.now()-(v.t||0)>6*3600*1000){store.del(ROOM_KEY);return null}return v}catch(e){return null}}
+async function resumeRoom(sv){if(!fbReady())return toast('Firebase 설정이 필요해요');
+ try{const sn=await db.ref('rooms/'+sv.code+'/meta').get();if(!sn.exists()){toast('그 방은 이미 닫혔어요');store.del(ROOM_KEY);render();return}
+  const r=sn.val();if(!r.players||!r.players[sv.id]){toast('그 방에 내 자리가 없어요');store.del(ROOM_KEY);render();return}
+  enterRoom(sv.code)}catch(e){toast('들어가지 못했어요: '+e.message)}}
+
+/* ---------- 채팅 (온라인 방에서만) ---------- */
+const BAD_WORDS=['시발','씨발','씨팔','시팔','ㅅㅂ','개새끼','개색기','새꺄','병신','ㅂㅅ','좆','좇','존나','존내','걸레','창녀','미친놈','미친년','지랄','닥쳐','꺼져','뒤져','죽어라','한남충','한녀충','틀딱','급식충','맘충','fuck','fucking','shit','bitch','asshole','bastard','nigger','retard'];
+const CHAT_MAX=150,CHAT_COOL=1200,CHAT_DUP=15000;
+let chatRef=null,chatCb=null,chatOpen=false,chatUnread=0,lastSentAt=0,lastSentText='';
+function chatTip(m){const t=$('#chatTip');t.textContent=m;t.classList.add('on');clearTimeout(chatTip._t);chatTip._t=setTimeout(()=>t.classList.remove('on'),1800)}
+const squash=t=>t.replace(/(.)\1{7,}/g,(m,c)=>c.repeat(8));
+function maskBad(text){const skip=/[\s.,!?~^*\-_'"]/;let plain='';const map=[];
+ for(let i=0;i<text.length;i++){if(!skip.test(text[i])){plain+=text[i];map.push(i)}}
+ const low=plain.toLowerCase(),chars=text.split('');let hit=false;
+ for(const w0 of BAD_WORDS){const w=w0.toLowerCase();if(!w)continue;let from=0,pos;
+  while((pos=low.indexOf(w,from))!==-1){hit=true;for(let k=0;k<w.length;k++)chars[map[pos+k]]='*';from=pos+w.length}}
+ return{text:chars.join(''),hit}}
+function onlyJamo(t){const x=t.replace(/\s+/g,'');if(!x||/^[ㅋㅎ]+$/.test(x))return false;return /^[ㄱ-ㅎ]+$/.test(x)}
+function chatBadge(){const b=$('#chatBadge');if(chatUnread>0){b.textContent=chatUnread>9?'9+':chatUnread;b.classList.add('on')}else b.classList.remove('on')}
+function toggleChat(v){chatOpen=(typeof v==='boolean')?v:!chatOpen;$('#chatBox').classList.toggle('on',chatOpen);
+ if(chatOpen){chatUnread=0;chatBadge();const l=$('#chatLog');l.scrollTop=l.scrollHeight;$('#chatInput').focus()}}
+function paintChat(list){const box=$('#chatLog');
+ if(!list.length){box.innerHTML='<div class="chat-none">아직 메시지가 없어요. 먼저 인사해 보세요!</div>';return}
+ box.innerHTML=list.map(m=>m?`<div class="chat-m${m.id===myId?' me':''}"><span class="who">${esc(m.name||'??')}</span>${esc(maskBad(String(m.text||'')).text)}</div>`:'').join('');box.scrollTop=box.scrollHeight}
+function attachChat(code){if(!db)return;detachChat();$('#chatBtn').classList.add('on');lastSentAt=0;lastSentText='';chatUnread=0;chatBadge();
+ chatRef=db.ref(`rooms/${code}/chat`).limitToLast(50);let first=true;
+ chatCb=chatRef.on('value',sn=>{const v=sn.val()||{},list=Object.keys(v).sort().map(k=>v[k]);paintChat(list);
+  const last=list[list.length-1];if(!first&&!chatOpen&&last&&last.id!==myId){chatUnread++;chatBadge()}first=false})}
+function detachChat(){if(chatRef&&chatCb)chatRef.off('value',chatCb);chatRef=null;chatCb=null;chatOpen=false;chatUnread=0;
+ $('#chatBtn').classList.remove('on');$('#chatBox').classList.remove('on');$('#chatLog').innerHTML='';chatBadge()}
+function sendChat(){const input=$('#chatInput');let text=input.value.trim();if(!text||mode!=='online'||!db||!ROOM)return;
+ if(onlyJamo(text))return chatTip('🔤 초성만으로는 보낼 수 없어요');
+ const now=Date.now();if(now-lastSentAt<CHAT_COOL)return chatTip('⏱️ 너무 빨라요! 잠시 후에 보내요');
+ if(text===lastSentText&&now-lastSentAt<CHAT_DUP)return chatTip('🔁 같은 메시지는 잠시 뒤에 보낼 수 있어요');
+ text=squash(text).slice(0,CHAT_MAX);const{text:masked,hit}=maskBad(text);text=masked;lastSentAt=now;lastSentText=text;
+ if(hit)chatTip('⚠️ 거친 표현은 별표로 가렸어요');
+ db.ref(`rooms/${ROOM}/chat`).push({id:myId,name:LS.get()||'손님',text,ts:TS()});input.value=''}
+$('#chatBtn').onclick=()=>toggleChat();$('#chatClose').onclick=()=>toggleChat(false);$('#chatSend').onclick=sendChat;
+$('#chatInput').addEventListener('keydown',e=>{if(e.key!=='Enter'||e.isComposing||e.keyCode===229)return;e.preventDefault();sendChat()});
+window.addEventListener('beforeunload',()=>{try{stopPresence()}catch(e){}});
+
+/* ============ 렌더링 ============ */
+const card=(n,x='')=>`<div class="c ${COL[n]} ${x}" data-n="${n}"><u>${coin(n)}</u><b>${n}</b><i>${'●'.repeat(coin(n))}</i></div>`;
+const bottle=`<svg viewBox="0 0 24 40" width="30"><path d="M9 2h6v8l4 6v20a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V16l4-6z" fill="#74d4c8" fill-opacity=".55" stroke="#e6fffb" stroke-width="1"/><path d="M9 2h6v3H9z" fill="#c9a24a"/><circle cx="12" cy="27" r="4.2" fill="#b3362b"/><path d="M9.6 24l-1.5-3M14.4 24l1.5-3" stroke="#b3362b" stroke-width="1.5"/></svg>`;
+const RULES=`<p><b>목표</b> 여러 라운드 동안 점수를 모아 가장 높은 점수를 얻는 것. 라운드가 끝났을 때 병을 가진 사람은 <b>마이너스</b>를 받습니다. 종료는 미리 정한 라운드 수(모든 플레이어가 딜러를 2번 또는 1번 맡을 때까지) 또는 합의한 목표 점수 중에서 고릅니다.</p>
+<p><b>준비</b> 36장(1~37, 19 제외)을 균등 분배(3인 12장 / 4인 9장). 각자 1장을 <b>임프의 트릭</b>(19 카드 아래, 비공개)에 버리고, 왼쪽·오른쪽 이웃에게 각각 1장씩 넘기고 이웃의 카드를 받습니다. 시작 병 가격은 19.</p>
+<p><b>트릭</b> 딜러 왼쪽부터 시계방향. 첫 카드와 같은 색이 있으면 반드시 내야 하고, 없으면 아무거나. 이긴 사람이 다음 리드.</p>
+<p>· 모든 카드가 <b>병 가격보다 높으면</b> 색 상관없이 가장 큰 숫자가 트릭 승리(병 이동 없음).<br>· 가격보다 <b>낮은 카드가 있으면</b> 그중 가장 큰 카드가 트릭과 <b>병</b>을 가져가고, 그 카드가 새 가격. 이전 가격 카드는 이전 병 주인이 획득(19는 제외).</p>
+<p><b>점수</b> 병이 없는 사람: 딴 카드의 코인 합. 병을 가진 사람: 임프의 트릭 코인 합만큼 <b>마이너스</b>이며, 딴 카드는 0점. 병이 한 번도 팔리지 않았다면 모두 플러스.</p>
+<p><b>카드 목록</b> (각 카드의 숫자·색·코인)</p><div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;zoom:.8">${Array.from({length:37},(_,i)=>i+1).filter(n=>n!=19).map(n=>card(n)).join('')}</div>`;
+const STORY=`<p>하와이에 키아웨(Keawe)라는 젊은 남자가 살고 있었습니다.</p>
+<p>어느 날 키아웨는 샌프란시스코에서 아주 부유해 보이는 한 노인을 만났습니다. 그런데 이상하게도 그 노인은 행복해 보이지 않았습니다.</p>
+<p>노인은 키아웨에게 작은 병 하나를 보여주며 말했습니다.<br><b>“이 병 안에는 작은 악마가 들어 있소. 병의 주인은 원하는 것은 무엇이든 얻을 수 있지.”</b><br>돈도, 집도, 성공도 원하는 대로 얻을 수 있었습니다.</p>
+<p>하지만 병에는 무시무시한 규칙이 있었습니다.</p>
+<p class="rule">첫째, 병을 가진 채 죽으면 영혼이 지옥에 떨어진다.</p>
+<p class="rule">둘째, 병을 다른 사람에게 팔 수는 있지만 반드시 자신이 산 가격보다 싸게 팔아야 한다.</p>
+<p class="rule">셋째, 그냥 버리거나 공짜로 줘버리면 병은 다시 주인에게 돌아온다.</p>
+<p>그리고 병을 팔 때는 이 규칙을 새 주인에게 모두 알려줘야 했습니다.</p>
+<p>키아웨는 처음에는 믿지 않았지만, 50달러를 주고 병을 샀습니다. 그리고 시험 삼아 병에게 자기가 낸 50달러를 돌려달라고 빌었습니다. 정말로 돈이 돌아왔습니다. 병에는 진짜 힘이 있었던 것입니다. 키아웨는 멋진 집을 갖고 싶다고 소원을 빌었습니다.</p>
+<p>소원은 이루어졌지만 아주 끔찍한 방식이었습니다. 친척들이 사고로 죽었고, 그 유산을 받은 덕분에 키아웨는 꿈꾸던 아름다운 집을 지을 수 있게 되었습니다. 키아웨는 병의 힘이 두려워졌습니다. 그래서 원하는 것을 얻은 뒤 병을 자기가 산 가격보다 싸게 다른 사람에게 팔아버렸습니다.</p>
+<p>그 후 키아웨는 코쿠아(Kokua)라는 여인을 만나 사랑에 빠졌습니다. 둘은 결혼하기로 했습니다. 그런데 행복이 시작되려던 순간, 키아웨는 자신이 당시에는 치료하기 어려운 병인 나병에 걸렸다는 사실을 알게 됩니다. 코쿠아와 결혼하려면 병을 치료해야 했습니다. 그래서 키아웨는 다시 그 악마의 병을 찾아 나섭니다.</p>
+<p>마침내 병의 현재 주인을 찾아냈지만 문제가 있었습니다. 병의 가격이 수많은 사람의 손을 거치면서 계속 떨어져 단 2센트가 되어 있었던 것입니다. 그 사람이 말했습니다.<br><b>“나는 이 병을 2센트에 샀소. 그러니 당신에게는 1센트에밖에 팔 수 없소.”</b></p>
+<p>키아웨는 충격을 받았습니다. 1센트는 미국에서 가장 작은 동전이었기 때문입니다. 1센트에 병을 사면 더 싸게 팔 방법이 없었습니다. 그렇다면 병을 가진 채 죽어 지옥에 떨어질 운명이 되는 것이었습니다. 하지만 키아웨는 코쿠아를 너무 사랑했습니다. 결국 그는 1센트에 병을 샀고, 병의 힘으로 병을 치료했습니다. 그리고 코쿠아와 결혼했습니다.</p>
+<p>그러나 행복할 수 없었습니다. 병을 팔 수 없으니 언젠가 죽으면 지옥에 떨어질 것이기 때문입니다. 마침내 키아웨가 모든 사실을 털어놓자 코쿠아가 방법을 생각해 냈습니다.<br><b>“프랑스령 타히티로 가요. 거기에는 미국의 1센트보다 더 작은 가치의 상팀(centime)이라는 동전이 있어요.”</b></p>
+<p>둘은 병을 가지고 타히티로 떠났습니다. 하지만 병의 저주를 들은 사람들은 아무도 사고 싶어 하지 않았습니다. 그러자 코쿠아는 남편을 살리기 위해 몰래 계획을 세웠습니다. 한 노인에게 부탁해 키아웨에게서 병을 4상팀에 사게 한 뒤, 자신이 그 노인에게서 다시 3상팀에 사기로 한 것입니다. 계획은 성공했습니다. 키아웨는 병에서 해방되었습니다.</p>
+<p>하지만 이제 병을 가진 사람은 코쿠아였습니다. 그리고 코쿠아 역시 더 싸게 팔지 못한다면 지옥에 떨어질 운명이었습니다. 뒤늦게 이 사실을 알게 된 키아웨는 이번에는 자신이 코쿠아를 구하기로 합니다.</p>
+<p>거친 선원 한 명에게 부탁해 코쿠아에게서 병을 2상팀에 사게 하고, <b>“그 다음 내가 당신에게서 1상팀에 다시 사겠소.”</b> 라고 약속했습니다. 그러면 키아웨가 다시 저주를 떠안게 되는 것이었습니다.</p>
+<p>선원은 병을 샀습니다. 키아웨가 약속대로 1상팀을 내밀며 병을 돌려달라고 했습니다. 그런데 뜻밖에도 선원은 거절했습니다. 병의 힘으로 원하는 것을 모두 얻을 수 있다는 것을 알고는 병을 마음에 들어 한 것입니다.</p>
+<p>키아웨는 말했습니다. <b>“그 병을 가진 채 죽으면 지옥에 떨어지오!”</b><br>그러자 선원은 태연하게 대답했습니다. <b>“난 평생 좋은 짓이라고는 별로 한 적이 없소. 난 어차피 지옥에 갈 것 같은데 이 병을 가지고 편하게 살다가 가는 게 뭐가 나쁘겠소?”</b><br>그리고 병을 가지고 떠나버렸습니다.</p>
+<p>그렇게 키아웨와 코쿠아는 둘 다 저주에서 벗어나 함께 행복하게 살아가게 됩니다. 그리고 악마의 병은 그 거친 선원과 함께 이야기 밖으로 사라졌습니다.</p>
+<p class="end" style="text-align:center">— 끝 —</p>
+<p class="warn" style="text-align:center">원작: 로버트 루이스 스티븐슨 「병 속의 악마」 · <a href="http://gaslight.mtroyal.ab.ca/bottlimp.htm" target="_blank" rel="noopener" style="color:var(--gold)">원문 읽기 (영어)</a><br><a href="https://boardlife.co.kr/bbs_detail.php?tb=info_files&bbs_num=13138" target="_blank" rel="noopener" style="color:var(--gold)">보드라이프 링크</a></p>`;
+function render(){
+ if(mode=='menu')return menuUI();if(mode=='online'&&!(RD&&RD.status=='playing'&&V&&V.g))return lobbyUI();if(!V||!V.g)return app.innerHTML='<div class=ov>연결 중…</div>';
+ const g=V.g,n=g.n,m=V.me,hand=V.hand||[],pos=p=>{const r=(p-m+n)%n;return n==3?['b','l','r'][r]:['b','l','t','r'][r]};
+ const nmz=p=>g.pl[p].name+(p==m&&!hot?' (나)':'');
+ const mine=g.phase=='prep'?!g.prepDone.includes(m):g.phase=='play'&&!g.wait&&g.turn==m,hide=hot&&(cover||!mine);
+ const prepOn=g.phase=='prep'&&!g.prepDone.includes(m)&&!hide,nAsg=sel.filter(x=>x!=null).length;
+ const tgt=(k,txt)=>prepOn?`<div><button class="tg${pick!=null?' hot':''}" data-to="${k}">${txt}</button>${sel[k]!=null?'<div class=asg>'+card(sel[k])+'</div>':''}</div>`:'';
+ const dot=p=>mode=='online'&&g.pl[p].id?'<span class="dot '+presCls(g.pl[p].id)+'" data-pid="'+esc(g.pl[p].id)+'"></span>':'';
+ const seat=p=>`<div class="seat ${pos(p)} ${g.turn==p&&g.phase=='play'?'turn':''}"><div class=n>${dot(p)}${nm(nmz(p))}${g.owner==p?' 🍾':''}${g.lead==p&&g.phase=='play'&&!g.trick.length?' ◀선':''}</div><div>${g.cnt[p]}장 · 획득 ${g.wonN[p]}장${g.dealer==p?' · 딜러':''}</div>${p==(m+1)%n?tgt(1,'◀ 왼쪽 이웃에게'):p==(m+n-1)%n?tgt(2,'오른쪽 이웃에게 ▶'):''}</div>`;
+ let msg='',L=[];
+ if(g.phase=='prep')msg=g.prepDone.includes(m)?'다른 플레이어를 기다리는 중…':(pick!=null?`<b>${pick}번</b> 카드를 어디로 보낼까요? 보낼 곳의 버튼을 누르세요.`:nAsg==3?'다 골랐어요. 확정을 눌러 주세요. (버튼을 다시 누르면 카드를 되돌릴 수 있어요)':`카드를 하나 고른 뒤 <b>임프의 트릭</b>(병 옆) · <b>왼쪽 이웃</b> · <b>오른쪽 이웃</b> 버튼으로 보내세요 (${nAsg}/3)`)+(nAsg==3?' <button id=ok>확정</button>':'');
+ else if(g.phase=='play'){if(g.wait)msg='트릭 결산 중…';
+  else if(g.turn==m){L=legal({hands:{[m]:hand},trick:g.trick.map(x=>x)},m);msg=g.trick.length?`<b>${CN[COL[g.trick[0].c]]}</b>을(를) 따라 내세요`:'선 플레이어입니다. 카드를 내세요'}
+  else msg=`${g.pl[g.turn].name} 차례`}
+ const tk=g.trick.map(x=>`<div class="tc ${pos(x.p)}">${card(x.c)}</div>`).join('');
+ app.innerHTML=`<div id=top><span>라운드 ${g.round}${g.target<0?'/'+(-g.target*g.n):''}${g.target<0?'':' · 목표 '+g.target+'점'}</span><span>${g.pl.map((x,p)=>`<span class="${p==m?'me':''}">${nm(x.name)} ${g.sc[p]}</span>`).join(' | ')}</span><span>${mode=='online'?'방 '+ROOM+' ':''}<button class=g id=rb>규칙</button>${mode=='online'?' <button class=g id=lv>나가기</button>':''}</span></div>
+ <div id=tbl>${g.pl.map((_,p)=>p==m?'':seat(p)).join('')}${seat(m)}
+ <div id=ctr><div class=cw><div class=pile>${'<div class=back></div>'.repeat(2)}${card(g.price)}${bottle}</div>${prepOn?`<div><button class="tg${pick!=null?' hot':''}" data-to="0">임프의 트릭</button>${sel[0]!=null?'<div class=asg>'+card(sel[0])+'</div>':''}</div>`:''}</div><small>병 가격 ${g.price}${g.owner<0?' · 주인 없음':' · '+nm(g.pl[g.owner].name)}</small></div>${tk}</div>
+ <div id=msg>${msg}</div><div id=hand>${hide?hand.map(()=>'<div class=back style="margin:0 -8px"></div>').join(''):hand.filter(c=>!(g.phase=='prep'&&sel.includes(c))).map(c=>card(c,(g.phase=='play'&&g.turn==m&&!g.wait&&!L.includes(c)?'dim ':'')+(g.phase=='prep'&&c===pick?'sel ':''))).join('')}</div>${showRules?`<div class=ov><h1>규칙</h1>${RULES}<button id=rc>닫기</button></div>`:''}${g.phase=='roundEnd'||g.phase=='over'?endUI(g,m):''}${hot&&cover?`<div class=ov style="height:100%;margin:0;max-width:none;border-radius:0;border:0;background:#0b1d1c;display:grid;place-content:center;z-index:30"><h1>${nm(g.pl[m].name)}</h1><p style="text-align:center">차례입니다. 다른 사람은 화면을 보지 마세요.</p><button id=cv>내 카드 보기</button></div>`:''}`;
+ $('#hand').onclick=e=>{if(hide)return;const el=e.target.closest('.c');if(!el||el.classList.contains('dim'))return;const c=+el.dataset.n;
+  if(g.phase=='prep'&&!g.prepDone.includes(m)){pick=pick===c?null:c;render()}
+  else if(g.phase=='play'&&g.turn==m&&!g.wait)send({t:'play',c})};
+ $('#ok')&&($('#ok').onclick=()=>send({t:'prep',d:sel[0],l:sel[1],r:sel[2]}));
+ document.querySelectorAll('.tg').forEach(b=>b.onclick=()=>assign(+b.dataset.to));
+ $('#lv')&&($('#lv').onclick=()=>{if(confirm('방에서 나갈까요?'))leaveRoom()});$('#cv')&&($('#cv').onclick=()=>{cover=false;render()});$('#rb').onclick=()=>{showRules=true;render()};$('#rc')&&($('#rc').onclick=()=>{showRules=false;render()});
+ $('#nx')&&($('#nx').onclick=()=>send({t:'next'}));$('#mn')&&($('#mn').onclick=()=>mode=='online'?leaveRoom():location.reload());$('#rs')&&($('#rs').onclick=restartOnline)}
+function endUI(g,m){const w=g.phase=='over'?g.sc.indexOf(Math.max(...g.sc)):-1;
+ return`<div class=ov><h1>${g.phase=='over'?'게임 종료':'라운드 '+g.round+' 결과'}</h1>
+ <div class=warn>임프의 트릭 (${g.imp.length}장)</div><div class=imp>${g.imp.map(c=>card(c)).join('')}</div>
+ <table><tr><th></th><th>이번 라운드</th><th>합계</th></tr>${g.pl.map((x,p)=>`<tr><td>${nm(x.name)}${g.last.owner==p?' 🍾':''}</td><td>${g.last.pts[p]>0?'+':''}${g.last.pts[p]}</td><td>${g.sc[p]}</td></tr>`).join('')}</table>
+ ${g.last.owner<0?'<p>병이 팔리지 않아 모두 플러스입니다.</p>':''}
+ ${w>=0?`<p style="text-align:center;font-size:1.2rem">🏆 ${nm(g.pl[w].name)} 승리!</p>${mode=='online'&&RD&&RD.host==myId?'<button id=rs>같은 멤버로 새 게임</button> ':''}<button class=g id=mn>메뉴로</button>`:(mode=='online'&&!(RD&&RD.host==myId)?'<p>방장이 다음 라운드를 시작합니다…</p>':'<button id=nx>다음 라운드</button>')}</div>`}
+function menuUI(){const ok=fbReady(),v=id=>$('#'+id).value,bk='<div class=row><button class=g id=bk>← 처음으로</button></div>';
+ const opts=`<div class=row><label>인원 <select id=n><option>3</option><option>4</option></select></label><label>종료 <select id=t><option value=-2>모두 딜러 2번</option><option value=-1>모두 딜러 1번</option><option value=200>200점</option><option value=300>300점</option><option value=500>500점</option></select></label></div>`;
+ const pages={
+ home:`<div style="font-size:3rem">🍾</div><h1>보틀임프</h1><div class=warn>Günter Cornett의 카드게임 · 비공식 팬 구현</div>
+  <div class=row style="flex-direction:column;align-items:stretch;margin-top:18px"><button id=pl>로컬 플레이</button><button id=po>온라인 플레이</button><button class=g id=rl>규칙</button><button class=g id=sb>이야기</button></div>`,
+ local:`<h1>로컬 플레이</h1><p class=warn>한 기기에서 진행합니다. 사람이 2명 이상이면 차례마다 기기를 넘겨 주세요.</p>${opts}<div id=seats></div><div class=row><button id=loc>시작</button></div>${bk}`,
+ story:`<h1>병 속의 악마</h1><div class=story>${STORY}</div>${bk}`,
+ online:`<h1>온라인 플레이</h1>${ok?'':'<div class=warnbox>index.html 상단 FB 설정을 채우면 온라인 모드를 쓸 수 있어요. (로컬은 그대로 가능)</div>'}<div id=resume></div><div class=row><input id=nick placeholder="닉네임" maxlength=12 value="${esc(LS.get())}"></div>
+  ${opts}<div class=row><button id=mk>방 만들기</button></div><div class=row><input id=cd placeholder="방 코드" maxlength=4 size=6 value="${esc((new URLSearchParams(location.search).get('room')||'').toUpperCase().slice(0,4))}" style="text-transform:uppercase"><button class=g id=jn>참가</button></div>${bk}`};
+ app.innerHTML=`<div id=menu class="${page=='story'?'wide':''}">${pages[page]}</div>${showRules?`<div class=ov><h1>규칙</h1>${RULES}<button id=rc>닫기</button></div>`:''}${showStory?`<div class=ov><h1>병 속의 악마</h1>${STORY}<button id=sc>닫기</button></div>`:''}`;
+ const go=p=>()=>{page=p;render()},on=(id,f)=>{const e=$('#'+id);if(e)e.onclick=f};
+ on('pl',go('local'));on('po',go('online'));on('bk',go('home'));
+ on('rl',()=>{showRules=true;render()});on('rc',()=>{showRules=false;render()});on('sb',go('story'));on('sc',()=>{showStory=false;render()});
+ if(page=='local'){const seatRows=n=>{$('#seats').innerHTML=Array.from({length:n},(_,i)=>`<div class=row>${i+1}번 <select id=ty${i}><option value=h ${i?'':'selected'}>사람</option><option value=b ${i?'selected':''}>봇</option></select><input id=nm${i} size=8 maxlength=12 placeholder="${i?BOTS[i%3]:'플레이어1'}"></div>`).join('')};
+  seatRows(+v('n'));$('#n').onchange=()=>seatRows(+v('n'));
+  on('loc',()=>{const n=+v('n'),cfg=Array.from({length:n},(_,i)=>{const bot=v('ty'+i)=='b',t=v('nm'+i).trim();return{bot,name:t?nm(t):bot?BOTS[i%3]:'플레이어'+(i+1)}});
+   if(cfg.every(x=>x.bot))return toast('사람이 최소 1명 필요합니다');localStart(n,+v('t'),cfg)})}
+ if(page=='online'){on('mk',()=>createRoom(v('nick'),+v('n'),+v('t')));on('jn',()=>joinRoom(v('nick'),v('cd')));
+  const sv=savedRoom();if(sv){$('#resume').innerHTML=`<div class=warnbox>아까 있던 방 <b>${esc(sv.code)}</b>에 다시 들어갈까요?<div class=row style="margin-top:8px"><button id=ry>다시 들어가기</button><button class=g id=rn>안 할래요</button></div></div>`;
+   on('ry',()=>resumeRoom(sv));on('rn',()=>{store.del(ROOM_KEY);render()})}}}
+function lobbyUI(){const r=RD;if(!r)return app.innerHTML='<div id=menu>연결 중…</div>';
+ if(r.status=='playing')return app.innerHTML='<div id=menu>게임을 불러오는 중…</div>';
+ const ps=Object.entries(r.players||{}).sort((a,b)=>a[1].t-b[1].t),host=r.host==myId,link=location.origin+location.pathname+'?room='+ROOM;
+ app.innerHTML=`<div id=menu><h1>대기실</h1><p class=warn>방 코드</p><div class=code>${esc(ROOM)}</div><div class=row><button class=g id=lbCopy>초대 링크 복사</button></div>
+ <ul class=plist>${Array.from({length:r.n},(_,i)=>{const e=ps[i];return e?`<li><span class="dot ${presCls(e[0])}" data-pid="${esc(e[0])}"></span>${esc(nm(e[1].name))}${e[0]==r.host?' <span class=tag>방장</span>':''}${e[0]==myId?' <span class=tag>나</span>':''}</li>`:'<li class=warn>빈 자리 — 시작하면 봇이 채워요</li>'}).join('')}</ul>
+ <p class=warn>${Math.min(ps.length,r.n)}/${r.n}명 · ${r.target<0?'모두 딜러 '+(-r.target)+'번':r.target+'점'}까지</p>
+ ${host?'<button id=lbStart>게임 시작</button>':'<p class=warn>방장이 시작하기를 기다리는 중…</p>'}<div class=row><button class=g id=lbLeave>나가기</button></div></div>`;
+ $('#lbCopy').onclick=()=>{navigator.clipboard?navigator.clipboard.writeText(link).then(()=>toast('링크를 복사했어요'),()=>toast(link)):toast(link)};
+ $('#lbStart')&&($('#lbStart').onclick=startOnline);$('#lbLeave').onclick=leaveRoom}
+{const u=new URLSearchParams(location.search).get('room');if(u)page='online'}
+render();
+</script></body></html>
